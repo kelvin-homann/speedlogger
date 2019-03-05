@@ -22,12 +22,17 @@ def database():
     conn.close()
 
 
+def correctdate(hours, minutes):
+    if minutes <= 9:
+        return str(hours) + ":0" + str(minutes)
+    else:
+        return str(hours) + ":" + str(minutes)
+
 def speedlogger():
     while 1:
-        now = str(datetime.datetime.now().hour) + ":" + str(datetime.datetime.now().minute)  # Format 00:00
-        print("Current Time: ", str(now))
-        if re.match("^([01]?[0-9]|2[0-3]):[^1-9][^1-9]$", now):  # Matches only full hours
-            print("Current Time: ", str(now))
+        currenttime = correctdate(datetime.datetime.now().hour, datetime.datetime.now().minute)  # Format 00:00
+        if re.match("^([01]?[0-9]|2[0-3]):[^1-5][^1-9]$", currenttime):  # Matches only full hours
+            print("Current Time: ", str(currenttime))
             servers = []
             print("Running speedtest")
             s = speedtest.Speedtest()
@@ -50,4 +55,4 @@ def speedlogger():
 
 if __name__ == '__main__':
     speedThread = Thread(target=speedlogger, args=()).start()
-    database()
+    #  database()
