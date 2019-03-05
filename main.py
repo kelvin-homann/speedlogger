@@ -2,6 +2,21 @@ import speedtest
 import urllib.request
 from apscheduler.schedulers.background import BackgroundScheduler
 import time
+import sqlite3
+
+
+def database():
+    print("Connecting to Database")
+    conn = sqlite3.connect("speedloggerdb.db")
+    c = conn.cursor()
+    
+    # Create table
+    #c.execute('''CREATE TABLE results
+    #             (date text, time text, download float, upload float, ping float, bytes_received float, bytes_sent float, picture text)''')
+
+    # commit the changes
+    conn.commit()
+    conn.close()
 
 
 def speedlogger():
@@ -25,6 +40,7 @@ def speedlogger():
 
 
 if __name__ == '__main__':
+    database()
     scheduler = BackgroundScheduler()
     scheduler.add_job(speedlogger, 'interval', seconds=60)
     scheduler.start()
@@ -34,5 +50,4 @@ if __name__ == '__main__':
         while True:
             time.sleep(2)
     except (KeyboardInterrupt, SystemExit):
-        # Not strictly necessary if daemonic mode is enabled but should be done if possible
         scheduler.shutdown()
