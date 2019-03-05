@@ -33,23 +33,29 @@ def speedlogger():
         currenttime = correctdate(datetime.datetime.now().hour, datetime.datetime.now().minute)  # Format 00:00
         if re.match("^([01]?[0-9]|2[0-3]):[^1-5][^1-9]$", currenttime):  # Matches only full hours
             print("Current Time: ", str(currenttime))
-            servers = []
-            print("Running speedtest")
-            s = speedtest.Speedtest()
-            s.get_servers(servers)
-            s.get_best_server()
-            s.download()
-            s.upload(pre_allocate=False)
-            print("Download: " + str(s.results.download))
-            print("Upload: " + str(s.results.upload))
-            print("Ping: " + str(s.results.ping))
-            print("Link: " + str(s.results.share()))
-            print("Timestamp: " + str(s.results.timestamp))
-            print("Bytes received: " + str(s.results.bytes_received))
-            print("Bytes sent: " + str(s.results.bytes_sent))
+            try:
+                servers = []
+                print("Running speedtest")
+                s = speedtest.Speedtest()
+                s.get_servers(servers)
+                s.get_best_server()
+                s.download()
+                s.upload(pre_allocate=False)
+                print("Download: " + str(s.results.download))
+                print("Upload: " + str(s.results.upload))
+                print("Ping: " + str(s.results.ping))
+                print("Link: " + str(s.results.share()))
+                print("Timestamp: " + str(s.results.timestamp))
+                print("Bytes received: " + str(s.results.bytes_received))
+                print("Bytes sent: " + str(s.results.bytes_sent))
+                # Downloading the speedtest result as .png to display it in ui
+                urllib.request.urlretrieve(s.results.share(), str("speedtestresult.png"))
+            except speedtest.SpeedtestException:
+                print("speedtest failed")
 
-            # Downloading the speedtest result as .png to display it in ui
-            urllib.request.urlretrieve(s.results.share(), str("speedtestresult.png"))
+
+
+
             time.sleep(60)  # To make sure it doesnt run twice in an hour
 
 
