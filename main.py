@@ -54,7 +54,7 @@ def speedlogger():
         currentday = get_date(str(datetime.datetime.now().date()))
         if re.match("^([01]?[0-9]|2[0-3]):[^1-5][^1-9]$", currenttime):  # matches only full hours
             try:
-                print("Running speedtest")
+                print("running speedtest")
                 servers = []
                 speedlog = speedtest.Speedtest()
                 speedlog.get_servers(servers)
@@ -63,16 +63,16 @@ def speedlogger():
                 speedlog.upload(pre_allocate=False)
 
                 print("Current Date: %s %s", str(currentday), str(currenttime))
-                print("Download: " + str(round(speedlog.results.download / (1000*1000), 2)) + " Mbit/s")  # fixed byte to megabyte output
-                print("Upload: " + str(round(speedlog.results.upload / (1000*1000), 2)) + " Mbit/s")  # fixed byte to megabyte output
+                print("Download: " + str(round(speedlog.results.download / (1000*1000), 2)) + " Mbit/s")  # fixed byte to megabit output
+                print("Upload: " + str(round(speedlog.results.upload / (1000*1000), 2)) + " Mbit/s")  # fixed byte to megabit output
                 print("Ping: " + str(speedlog.results.ping))
                 print("Timestamp: " + str(speedlog.results.timestamp))
                 print("Bytes received: " + str(speedlog.results.bytes_received))
                 print("Bytes sent: " + str(speedlog.results.bytes_sent))
                 print("Link: " + str(speedlog.results.share()))
 
-                download = float(round(speedlog.results.download / (1000*1000), 2))  # fixed byte to megabyte output
-                upload = float(round(speedlog.results.upload / (1000*1000), 2))  # fixed byte to megabyte output
+                download = float(round(speedlog.results.download / (1000*1000), 2))  # fixed byte to megabit output
+                upload = float(round(speedlog.results.upload / (1000*1000), 2))  # fixed byte to megabit output
                 ping = float(round(speedlog.results.ping))
                 bytes_received = float(speedlog.results.bytes_received)
                 bytes_sent = float(speedlog.results.bytes_sent)
@@ -81,7 +81,7 @@ def speedlogger():
                 params = (getnewrnr(c), currentday, currenttime, download, upload, ping, bytes_received, bytes_sent, result_pic)
                 c.execute("INSERT INTO results VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", params)
 
-                print("Finished speedtest and wrote into the database")
+                print("finished speedtest")
 
                 # saving the changes
                 conn.commit()
@@ -95,11 +95,9 @@ def speedlogger():
 
             except speedtest.SpeedtestException:
                 print("speedtest failed")
-                # adding empty entrys incase the internet doesnt work
+                # adding empty entrys due to failure
                 params = (getnewrnr(c), currentday, currenttime, 0, 0, 0, 0, 0, "")
                 c.execute("INSERT INTO results VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", params)
-                print("Finished speedtest and wrote into the database")
-
                 # saving the changes
                 conn.commit()
                 time.sleep(60)  # to make sure it doesnt run twice in an hour
