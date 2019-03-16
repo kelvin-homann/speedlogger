@@ -49,58 +49,54 @@ def speedlogger():
     print("started speedlogger")
     conn = sqlite3.connect("speedloggerdb.db")  # establishing database connection
     c = conn.cursor()
-    while 1:  # infite loop checks the current time
-        currenttime = correctdate(datetime.datetime.now().hour, datetime.datetime.now().minute)  # Format 00:00
-        currentday = get_date(str(datetime.datetime.now().date()))
-        if re.match("^([01]?[0-9]|2[0-3]):[^1-5][^1-9]$", currenttime):  # matches only full hours
-            try:
-                print("running speedtest")
-                servers = []
-                speedlog = speedtest.Speedtest()
-                speedlog.get_servers(servers)
-                speedlog.get_best_server()
-                speedlog.download()
-                speedlog.upload(pre_allocate=False)
+    currenttime = correctdate(datetime.datetime.now().hour, datetime.datetime.now().minute)  # Format 00:00
+    currentday = get_date(str(datetime.datetime.now().date()))
 
-                print("Current Date: %s %s", str(currentday), str(currenttime))
-                print("Download: " + str(round(speedlog.results.download / (1000*1000), 2)) + " Mbit/s")  # fixed byte to megabit output
-                print("Upload: " + str(round(speedlog.results.upload / (1000*1000), 2)) + " Mbit/s")  # fixed byte to megabit output
-                print("Ping: " + str(speedlog.results.ping))
-                print("Timestamp: " + str(speedlog.results.timestamp))
-                print("Bytes received: " + str(speedlog.results.bytes_received))
-                print("Bytes sent: " + str(speedlog.results.bytes_sent))
-                print("Link: " + str(speedlog.results.share()))
+    try:
+        print("running speedtest")
+        servers = []
+        speedlog = speedtest.Speedtest()
+        speedlog.get_servers(servers)
+        speedlog.get_best_server()
+        speedlog.download()
+        speedlog.upload(pre_allocate=False)
 
-                download = float(round(speedlog.results.download / (1000*1000), 2))  # fixed byte to megabit output
-                upload = float(round(speedlog.results.upload / (1000*1000), 2))  # fixed byte to megabit output
-                ping = float(round(speedlog.results.ping))
-                bytes_received = float(speedlog.results.bytes_received)
-                bytes_sent = float(speedlog.results.bytes_sent)
-                result_pic = str(speedlog.results.share())
+        print("Current Date: %s %s", str(currentday), str(currenttime))
+        print("Download: " + str(round(speedlog.results.download / (1000*1000), 2)) + " Mbit/s")  # fixed byte to megabit output
+        print("Upload: " + str(round(speedlog.results.upload / (1000*1000), 2)) + " Mbit/s")  # fixed byte to megabit output
+        print("Ping: " + str(speedlog.results.ping))
+        print("Timestamp: " + str(speedlog.results.timestamp))
+        print("Bytes received: " + str(speedlog.results.bytes_received))
+        print("Bytes sent: " + str(speedlog.results.bytes_sent))
+        print("Link: " + str(speedlog.results.share()))
 
-                params = (getnewrnr(c), currentday, currenttime, download, upload, ping, bytes_received, bytes_sent, result_pic)
-                c.execute("INSERT INTO results VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", params)
+        download = float(round(speedlog.results.download / (1000*1000), 2))  # fixed byte to megabit output
+        upload = float(round(speedlog.results.upload / (1000*1000), 2))  # fixed byte to megabit output
+        ping = float(round(speedlog.results.ping))
+        bytes_received = float(speedlog.results.bytes_received)
+        bytes_sent = float(speedlog.results.bytes_sent)
+        result_pic = str(speedlog.results.share())
 
-                print("finished speedtest")
+        params = (getnewrnr(c), currentday, currenttime, download, upload, ping, bytes_received, bytes_sent, result_pic)
+        c.execute("INSERT INTO results VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", params)
 
-                # saving the changes
-                conn.commit()
-                # downloading the speedtest result as .png to display it in ui later on
-                # urllib.request.urlretrieve(speedlog.results.share(), str("speedtestresult.png"))
+        print("finished speedtest")
 
-                # backup of the database
-                backup()
+        # saving the changes
+        conn.commit()
+        # downloading the speedtest result as .png to display it in ui later on
+        # urllib.request.urlretrieve(speedlog.results.share(), str("speedtestresult.png"))
 
-                time.sleep(60)  # To make sure it doesnt run twice in an hour
+        # backup of the database
+        backup()
 
-            except speedtest.SpeedtestException:
-                print("speedtest failed")
-                # adding empty entrys due to failure
-                params = (getnewrnr(c), currentday, currenttime, 0, 0, 0, 0, 0, "")
-                c.execute("INSERT INTO results VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", params)
-                # saving the changes
-                conn.commit()
-                time.sleep(60)  # to make sure it doesnt run twice in an hour
+    except speedtest.SpeedtestException:
+        print("speedtest failed")
+        # adding empty entrys due to failure
+        params = (getnewrnr(c), currentday, currenttime, 0, 0, 0, 0, 0, "")
+        c.execute("INSERT INTO results VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", params)
+        # saving the changes
+        conn.commit()
 
 
 if __name__ == '__main__':
